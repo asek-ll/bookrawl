@@ -1,18 +1,17 @@
 package tasks
 
 import (
-    "time"
+	"time"
 )
 
-
 type ABook struct {
-    Id string
-    RawTitle string
-    Title string
-    Author string
-    Artist string
-    Year int
-    Date time.Time
-    Link string
-    Description string
+	Id          string
+	RawTitle    string
+	Title       string
+	Author      string
+	Artist      string
+	Year        int
+	Date        time.Time
+	Link        string
+	Description string
 }
