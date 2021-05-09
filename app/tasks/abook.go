@@ -9,9 +9,13 @@ type ABook struct {
 	RawTitle    string
 	Title       string
 	Author      string
-	Artist      string
+	Artists     []string
 	Year        int
 	Date        time.Time
 	Link        string
 	Description string
+	Length      int
+	Size        string
+	Quality     string
+	Props       map[string]string
 }
