@@ -1,4 +1,4 @@
-package tasks
+package rutracker
 
 import (
 	"encoding/xml"
@@ -7,10 +7,12 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"bookrawl/app/tasks"
 )
 
 const (
-	rutrackerTimeFormat string = "2006-01-02T15:04:05"
+	timeFormat string = "2006-01-02T15:04:05"
 )
 
 type EntryLink struct {
@@ -36,7 +38,7 @@ func (s *RutrackerRssScrapper) GetType() string {
 	return "rutracker"
 }
 
-func (s *RutrackerRssScrapper) Fetch(params TaskParams) ([]ABook, error) {
+func (s *RutrackerRssScrapper) Fetch(params tasks.TaskParams) ([]tasks.ABook, error) {
 	var forumId string
 	exists := false
 	if params != nil {
@@ -58,7 +60,7 @@ func (s *RutrackerRssScrapper) Fetch(params TaskParams) ([]ABook, error) {
 		return nil, err
 	}
 
-	books := make([]ABook, len(feed.Entries))
+	books := make([]tasks.ABook, len(feed.Entries))
 
 	for i, entry := range feed.Entries {
 
@@ -75,9 +77,9 @@ func (s *RutrackerRssScrapper) Fetch(params TaskParams) ([]ABook, error) {
 			title = rawTitleParts[0]
 		}
 
-		updated, _ := time.Parse(rutrackerTimeFormat, entry.Updated[:len(rutrackerTimeFormat)])
+		updated, _ := time.Parse(timeFormat, entry.Updated[:len(timeFormat)])
 
-		book := ABook{
+		book := tasks.ABook{
 			Id:       fmt.Sprintf("rutracker-%s", id),
 			RawTitle: entry.Title,
 			Title:    title,

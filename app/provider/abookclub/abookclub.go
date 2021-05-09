@@ -1,12 +1,15 @@
-package tasks
+package abookclub
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"bookrawl/app/tasks"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 const (
@@ -16,7 +19,7 @@ const (
 type AbookClubScrapper struct {
 }
 
-func (s *AbookClubScrapper) Fetch(params TaskParams) ([]ABook, error) {
+func (s *AbookClubScrapper) Fetch(params tasks.TaskParams) ([]tasks.ABook, error) {
 	response, err := http.Get("http://abook-club.ru/new_abooks/")
 	if err != nil {
 		return nil, err
@@ -30,7 +33,7 @@ func (s *AbookClubScrapper) GetType() string {
 	return "abook-club"
 }
 
-func parseBody(reader io.Reader) ([]ABook, error) {
+func parseBody(reader io.Reader) ([]tasks.ABook, error) {
 
 	// Create a goquery document from the HTTP response
 	document, err := goquery.NewDocumentFromReader(reader)
@@ -38,7 +41,7 @@ func parseBody(reader io.Reader) ([]ABook, error) {
 		return nil, err
 	}
 
-	books := []ABook{}
+	books := []tasks.ABook{}
 
 	document.Find("div.entry").Each(func(index int, el *goquery.Selection) {
 		a := el.Find("div.entry_header_full a")
@@ -55,7 +58,7 @@ func parseBody(reader io.Reader) ([]ABook, error) {
 
 		created, _ := time.Parse(timeFormat, datetime)
 
-		book := ABook{
+		book := tasks.ABook{
 			Id:          fmt.Sprintf("abook-club-%s", id),
 			RawTitle:    rawTitle,
 			Title:       rawTitleParts[1],

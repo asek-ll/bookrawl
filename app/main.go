@@ -1,16 +1,20 @@
 package main
 
 import (
+	"bookrawl/app/provider/abookclub"
+	"bookrawl/app/provider/rutracker"
 	"bookrawl/app/tasks"
+
 	//"github.com/asek-ll/bookrawl/app"
 	"context"
 	"flag"
 	"fmt"
+	"log"
+	"time"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
-	"log"
-	"time"
 )
 
 func main() {
@@ -33,8 +37,8 @@ func main() {
 
 	tm := &tasks.TaskManager{
 		RunnerManager: tasks.NewTaskRunManager(
-			&tasks.AbookClubScrapper{},
-			&tasks.RutrackerRssScrapper{},
+			&abookclub.AbookClubScrapper{},
+			&rutracker.RutrackerRssScrapper{},
 		),
 		TaskStore: &tasks.TaskStore{
 			Collection: client.Database("bookrawl").Collection("tasks"),
