@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log"
 	"time"
+
+	"bookrawl/app/abooks"
 )
 
 type TaskRunManager struct {
@@ -21,7 +23,7 @@ func NewTaskRunManager(runners ...TaskRunner) *TaskRunManager {
 	return &rm
 }
 
-func (tm *TaskRunManager) run(task SyncTask, start time.Time) ([]ABook, error) {
+func (tm *TaskRunManager) run(task SyncTask, start time.Time) ([]abooks.ABook, error) {
 	runner, ex := tm.RunnerByType[task.Type]
 	if !ex {
 		return nil, errors.New("No runner")
@@ -37,7 +39,7 @@ func (tm *TaskRunManager) run(task SyncTask, start time.Time) ([]ABook, error) {
 
 	log.Printf("Fetched books count %d", len(books))
 
-	filtered := []ABook{}
+	filtered := []abooks.ABook{}
 
 	for _, book := range books {
 		if book.Date.After(task.LastRun) && !book.Date.After(start) {
@@ -50,7 +52,7 @@ func (tm *TaskRunManager) run(task SyncTask, start time.Time) ([]ABook, error) {
 	return filtered, nil
 }
 
-func (tm *TaskRunManager) RunTask(task SyncTask) (SyncTask, []ABook) {
+func (tm *TaskRunManager) RunTask(task SyncTask) (SyncTask, []abooks.ABook) {
 	now := time.Now()
 	books, err := tm.run(task, now)
 
@@ -59,7 +61,7 @@ func (tm *TaskRunManager) RunTask(task SyncTask) (SyncTask, []ABook) {
 	if err != nil {
 		updatedTask.State = "error"
 		updatedTask.ErrorMsg = err.Error()
-		return updatedTask, []ABook{}
+		return updatedTask, []abooks.ABook{}
 	}
 
 	updatedTask.LastRun = now

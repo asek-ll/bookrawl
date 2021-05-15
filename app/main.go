@@ -1,13 +1,13 @@
 package main
 
 import (
+	"bookrawl/app/abooks"
 	"bookrawl/app/provider/abookclub"
 	"bookrawl/app/provider/rutracker"
 	"bookrawl/app/tasks"
 
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"time"
 
@@ -31,7 +31,7 @@ func main() {
 	err = client.Ping(ctx, readpref.Primary())
 
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 	tm := &tasks.TaskManager{
@@ -42,14 +42,14 @@ func main() {
 		TaskStore: &tasks.TaskStore{
 			Collection: client.Database("bookrawl").Collection("tasks"),
 		},
-		AbookStore: &tasks.AbookStore{
+		AbookStore: &abooks.AbookStore{
 			Collection: client.Database("bookrawl").Collection("abooks"),
 		},
 	}
 
 	err = tm.Process()
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 
 }

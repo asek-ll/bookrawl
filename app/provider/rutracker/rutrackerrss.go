@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"bookrawl/app/abooks"
 	"bookrawl/app/tasks"
 )
 
@@ -38,7 +39,7 @@ func (s *RutrackerRssScrapper) GetType() string {
 	return "rutracker"
 }
 
-func (s *RutrackerRssScrapper) Fetch(params tasks.TaskParams) ([]tasks.ABook, error) {
+func (s *RutrackerRssScrapper) Fetch(params tasks.TaskParams) ([]abooks.ABook, error) {
 	var forumId string
 	exists := false
 	if params != nil {
@@ -60,7 +61,7 @@ func (s *RutrackerRssScrapper) Fetch(params tasks.TaskParams) ([]tasks.ABook, er
 		return nil, err
 	}
 
-	books := make([]tasks.ABook, len(feed.Entries))
+	books := make([]abooks.ABook, len(feed.Entries))
 
 	for i, entry := range feed.Entries {
 
@@ -79,7 +80,7 @@ func (s *RutrackerRssScrapper) Fetch(params tasks.TaskParams) ([]tasks.ABook, er
 
 		updated, _ := time.Parse(timeFormat, entry.Updated[:len(timeFormat)])
 
-		book := tasks.ABook{
+		book := abooks.ABook{
 			Id:       fmt.Sprintf("rutracker-%s", id),
 			RawTitle: entry.Title,
 			Title:    title,

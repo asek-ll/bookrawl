@@ -1,13 +1,13 @@
 package tasks
 
 import (
-//"fmt"
+	"bookrawl/app/abooks"
 )
 
 type TaskManager struct {
 	RunnerManager *TaskRunManager
 	TaskStore     *TaskStore
-	AbookStore    *AbookStore
+	AbookStore    *abooks.AbookStore
 }
 
 func (tm *TaskManager) Process() error {

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"bookrawl/app/abooks"
 	"bookrawl/app/tasks"
 
 	"github.com/PuerkitoBio/goquery"
@@ -20,7 +21,7 @@ const (
 type AbookClubScrapper struct {
 }
 
-func (s *AbookClubScrapper) GetPageBooks(page int) ([]tasks.ABook, error) {
+func (s *AbookClubScrapper) GetPageBooks(page int) ([]abooks.ABook, error) {
 	url := fmt.Sprintf("http://abook-club.ru/new_abooks/page=%d/", page)
 	response, err := http.Get(url)
 	if err != nil {
@@ -31,7 +32,7 @@ func (s *AbookClubScrapper) GetPageBooks(page int) ([]tasks.ABook, error) {
 	return parseBody(response.Body)
 }
 
-func (s *AbookClubScrapper) Fetch(params tasks.TaskParams) ([]tasks.ABook, error) {
+func (s *AbookClubScrapper) Fetch(params tasks.TaskParams) ([]abooks.ABook, error) {
 	firstPage, err := s.GetPageBooks(1)
 	if err != nil {
 		return nil, err
@@ -50,7 +51,7 @@ func (s *AbookClubScrapper) GetType() string {
 	return "abook-club"
 }
 
-func convertNodeToBook(el *goquery.Selection) (*tasks.ABook, error) {
+func convertNodeToBook(el *goquery.Selection) (*abooks.ABook, error) {
 	a := el.Find("div.entry_header_full a")
 
 	link, _ := a.Attr("href")
@@ -136,7 +137,7 @@ func convertNodeToBook(el *goquery.Selection) (*tasks.ABook, error) {
 		return nil, fmt.Errorf("Can't parse book date %w", err)
 	}
 
-	book := &tasks.ABook{
+	book := &abooks.ABook{
 		Id:          fmt.Sprintf("abook-club-%s", id),
 		RawTitle:    rawTitle,
 		Title:       title,
@@ -155,14 +156,14 @@ func convertNodeToBook(el *goquery.Selection) (*tasks.ABook, error) {
 	return book, nil
 }
 
-func parseBody(reader io.Reader) ([]tasks.ABook, error) {
+func parseBody(reader io.Reader) ([]abooks.ABook, error) {
 
 	document, err := goquery.NewDocumentFromReader(reader)
 	if err != nil {
 		return nil, err
 	}
 
-	books := []tasks.ABook{}
+	books := []abooks.ABook{}
 
 	entries := document.Find("div.entry")
 
