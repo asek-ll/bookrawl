@@ -36,7 +36,12 @@ func main() {
 		Collection: client.Database("bookrawl").Collection("abooks"),
 	}
 
-	result, err := bookStore.Find(nil, 200)
+	//printByAuthor(bookStore)
+	printLast(bookStore)
+}
+
+func printByAuthor(bookStore *abooks.AbookStore) {
+	result, err := bookStore.Find(nil, 20)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,5 +73,16 @@ func main() {
 	if bookCount > 0 {
 		fmt.Println("Last date", result.Books[bookCount-1].Date)
 	}
+}
 
+func printLast(bookStore *abooks.AbookStore) {
+	result, err := bookStore.Find(nil, 20)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, book := range result.Books {
+		fmt.Println(book.Author, "-", book.Title, "-", book.Date)
+		//fmt.Println(book.RawTitle)
+	}
 }

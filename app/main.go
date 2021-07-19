@@ -5,6 +5,7 @@ import (
 	"bookrawl/app/provider/abookclub"
 	"bookrawl/app/provider/rutracker"
 	"bookrawl/app/tasks"
+	"os"
 
 	"context"
 	"flag"
@@ -21,6 +22,11 @@ func main() {
 	flag.Parse()
 
 	if *connUri == "" {
+		*connUri = os.Getenv("MONGODB_URI")
+	}
+
+	if *connUri == "" {
+
 		log.Fatal("mongodbURI required")
 	}
 
