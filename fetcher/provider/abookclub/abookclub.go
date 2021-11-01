@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"bookrawl/app/abooks"
-	"bookrawl/app/tasks"
+	"bookrawl/fetcher/tasks"
 
 	"github.com/PuerkitoBio/goquery"
 )

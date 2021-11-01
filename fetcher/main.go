@@ -2,9 +2,9 @@ package main
 
 import (
 	"bookrawl/app/abooks"
-	"bookrawl/app/provider/abookclub"
-	"bookrawl/app/provider/rutracker"
-	"bookrawl/app/tasks"
+	"bookrawl/fetcher/provider/abookclub"
+	"bookrawl/fetcher/provider/rutracker"
+	"bookrawl/fetcher/tasks"
 	"os"
 
 	"context"
