@@ -10,9 +10,8 @@ import (
 )
 
 type Author struct {
-	Id      int
-	Name    string
-	Tracked bool
+	Id   int
+	Name string
 }
 
 type Store struct {
@@ -21,15 +20,38 @@ type Store struct {
 
 func (store *Store) Upsert(author *Author) error {
 	opts := options.Update().SetUpsert(true)
-	filter := bson.D{{Key: "id", Value: author.Id}}
-	update := bson.D{{Key: "$set", Value: author}}
+	filter := bson.D{{Key: "_id", Value: author.Id}}
+	update := bson.D{{Key: "$set", Value: bson.D{
+		{"_id", author.Id},
+		{"name", author.Name},
+	}}}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_, err := as.Collection.UpdateOne(ctx, filter, update, opts)
+	_, err := store.Collection.UpdateOne(ctx, filter, update, opts)
 	return err
 }
 
-func (store *Store) FindByName(name String) (*Author, error) {
+func (store *Store) UpsertMany(authors []*Author) error {
+	models := make([]mongo.WriteModel, len(authors))
+
+	for i, author := range authors {
+		filter := bson.D{{Key: "_id", Value: author.Id}}
+		update := bson.D{{Key: "$set", Value: bson.D{
+			{"_id", author.Id},
+			{"name", author.Name},
+		}}}
+		models[i] = mongo.NewUpdateOneModel().SetFilter(filter).SetUpdate(update).SetUpsert(true)
+	}
+
+	opts := options.BulkWrite().SetOrdered(false)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := store.Collection.BulkWrite(ctx, models, opts)
+	return err
+}
+
+func (store *Store) FindByName(name string) (*Author, error) {
 	return nil, nil
 }

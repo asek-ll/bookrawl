@@ -9,7 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func fetchBooks(client *mongo.Client) error {
+func CreateFetchBooksTask(client *mongo.Client) (func(), error) {
 	tm := &tasks.TaskManager{
 		RunnerManager: tasks.NewTaskRunManager(
 			&abookclub.AbookClubScrapper{},
@@ -23,5 +23,5 @@ func fetchBooks(client *mongo.Client) error {
 		},
 	}
 
-	return tm.Process()
+	return func() { tm.Process() }, nil
 }

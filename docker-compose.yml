@@ -1,10 +1,8 @@
 version: '3'
 
 services:
-  cron:
+  scheduler:
     build:
-      context: fetcher/
-      args:
-        cron_rule: $CRON_RULE
+      context: scheduler/
     environment:
       MONGODB_URI: $MONGODB_URI
