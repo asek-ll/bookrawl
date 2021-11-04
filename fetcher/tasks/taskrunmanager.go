@@ -7,14 +7,19 @@ import (
 	"time"
 
 	"bookrawl/app/abooks"
+	"bookrawl/app/dao/authors"
 )
 
 type TaskRunManager struct {
 	RunnerByType map[string]TaskRunner
+	AuthorsStore *authors.Store
 }
 
-func NewTaskRunManager(runners ...TaskRunner) *TaskRunManager {
-	rm := TaskRunManager{RunnerByType: make(map[string]TaskRunner)}
+func NewTaskRunManager(authorsStore *authors.Store, runners ...TaskRunner) *TaskRunManager {
+	rm := TaskRunManager{
+		RunnerByType: make(map[string]TaskRunner),
+		AuthorsStore: authorsStore,
+	}
 
 	for _, runner := range runners {
 		rm.RunnerByType[runner.GetType()] = runner
@@ -43,6 +48,14 @@ func (tm *TaskRunManager) run(task SyncTask, start time.Time) ([]abooks.ABook, e
 
 	for _, book := range books {
 		if book.Date.After(task.LastRun) && !book.Date.After(start) {
+			author, err := tm.AuthorsStore.FindByName(book.Author)
+			if err != nil {
+				log.Println("Error fetch author for book", book, err)
+			} else if author == nil {
+				log.Println("No author founded for book", book)
+			} else {
+				book.AuthorId = []int{author.Id}
+			}
 			filtered = append(filtered, book)
 		}
 	}

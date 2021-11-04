@@ -18,4 +18,5 @@ type ABook struct {
 	Size        string
 	Quality     string
 	Props       map[string]string
+	AuthorId    []int
 }

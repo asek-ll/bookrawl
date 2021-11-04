@@ -19,12 +19,24 @@ func main() {
 	}
 
 	fetchAuthorsTask, _ := tasks.CreateFetchAuthorsTask(client)
-	s.Cron("0 7 * * *").Do(fetchAuthorsTask)
+	_, err = s.Cron("0 1 * * *").Do(fetchAuthorsTask)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("Register 'fetchAuthorsTask' task")
 
 	fetchBooksTask, _ := tasks.CreateFetchBooksTask(client)
-	s.Cron("0 5 * * *").Do(fetchBooksTask)
+	_, err = s.Cron("0 3 * * *").Do(fetchBooksTask)
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Printf("Register 'fetchBooksTask' task")
 
+	// err = tasks.FillAuthors(client)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
 	s.StartBlocking()
+
 }
