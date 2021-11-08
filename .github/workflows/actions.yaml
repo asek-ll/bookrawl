@@ -26,23 +26,37 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup go
+        uses: actions/setup-go@v2
+
+      - name: Build binary
+        run: make build-arm
+        working-directory: ./scheduler
+
+      - name: Set up Docker Buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest 
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Setup go
-        uses: actions/setup-go@v2
+      # - name: Build and push Docker image
+      #   uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+      #   with:
+      #     context: ./scheduler
+      #     push: true
+      #     tags: ${{ steps.meta.outputs.tags }}
+      #     labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Build binary
-        run: make
-        working-directory: ./scheduler
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: ./scheduler
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+    - name: Run Buildx (push image)      
+      working-directory: ./scheduler
+      run: |
+        docker buildx build \
+        --platform linux/arm/v7 \
+        --tag ${{ steps.meta.outputs.tags }} \
+        --file ./Dockerfile \
+        --output type=image,push=true .
