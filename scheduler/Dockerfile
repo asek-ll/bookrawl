@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM alpine:latest
+FROM arm64v8/alpine:latest
 
 COPY dist/bookrawl /bin/
 
