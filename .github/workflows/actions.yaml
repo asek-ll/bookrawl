@@ -52,11 +52,11 @@ jobs:
       #     tags: ${{ steps.meta.outputs.tags }}
       #     labels: ${{ steps.meta.outputs.labels }}
 
-    - name: Run Buildx (push image)      
-      working-directory: ./scheduler
-      run: |
-        docker buildx build \
-        --platform linux/arm/v7 \
-        --tag ${{ steps.meta.outputs.tags }} \
-        --file ./Dockerfile \
-        --output type=image,push=true .
+      - name: Run Buildx (push image)
+        working-directory: ./scheduler
+        run: |
+          docker buildx build \
+          --platform linux/arm/v7 \
+          --tag ${{ steps.meta.outputs.tags }} \
+          --file ./Dockerfile \
+          --output type=image,push=true .
