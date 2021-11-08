@@ -33,10 +33,13 @@ jobs:
         run: make build-arm
         working-directory: ./scheduler
 
-      - name: Set up Docker Buildx
-        uses: crazy-max/ghaction-docker-buildx@v1
-        with:
-          version: latest 
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -44,19 +47,11 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      # - name: Build and push Docker image
-      #   uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-      #   with:
-      #     context: ./scheduler
-      #     push: true
-      #     tags: ${{ steps.meta.outputs.tags }}
-      #     labels: ${{ steps.meta.outputs.labels }}
-
-      - name: Run Buildx (push image)
-        working-directory: ./scheduler
-        run: |
-          docker buildx build \
-          --platform linux/arm/v8 \
-          --tag ${{ steps.meta.outputs.tags }} \
-          --file ./Dockerfile \
-          --output type=image,push=true .
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: ./scheduler
+          platform: linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
