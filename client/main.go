@@ -82,7 +82,7 @@ func printLast(bookStore *abooks.AbookStore) {
 	}
 
 	for _, book := range result.Books {
-		fmt.Println(book.Author, "-", book.Title, "-", book.Date)
+		fmt.Println(book.Author, "-", book.Title, "-", book.Date, book.AuthorId, book.Link)
 		//fmt.Println(book.RawTitle)
 	}
 }

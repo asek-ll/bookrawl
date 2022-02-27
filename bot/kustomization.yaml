@@ -1,0 +1,13 @@
+secretGenerator:
+- name: bot-certs
+  files:
+  - key.pem
+  - cert.pem
+- name: bookrawl-bot-env
+  envs:
+  - .env.secret
+
+configMapGenerator:
+- name: bookrawl-bot
+  envs:
+  - .env

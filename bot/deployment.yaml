@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookrawl-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookrawl-bot
+  template:
+    metadata:
+      labels:
+        app: bookrawl-bot
+    spec:
+      containers:
+      - name: bookrawl-bot
+        image: ghcr.io/asek-ll/bookrawl-bot:master
+        imagePullPolicy: Always
+        env:
+          - name: MONGODB_URI
+            valueFrom:
+              secretKeyRef:
+                name: bookrawl-bot-env
+                key: MONGODB_URI
+          - name: TG_BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: bookrawl-bot-env
+                key: TG_BOT_TOKEN
+          - name: TG_BOT_WEB_HOOK_HOST
+            valueFrom:
+              secretKeyRef:
+                name: bookrawl-bot-env
+                key: TG_BOT_WEB_HOOK_HOST
+
