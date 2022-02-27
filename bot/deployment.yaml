@@ -16,6 +16,12 @@ spec:
       - name: bookrawl-bot
         image: ghcr.io/asek-ll/bookrawl-bot:master
         imagePullPolicy: Always
+        ports:
+          - containerPort: 443
+        volumeMounts:
+          - name: bot-certs
+            mountPath: "/bot-certs"
+            readOnly: true
         env:
           - name: MONGODB_URI
             valueFrom:
@@ -32,4 +38,8 @@ spec:
               secretKeyRef:
                 name: bookrawl-bot-env
                 key: TG_BOT_WEB_HOOK_HOST
+      volumes:
+        - name: bot-certs
+          secret:
+            secretName: bot-certs
 

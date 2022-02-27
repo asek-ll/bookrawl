@@ -1,13 +1,11 @@
 secretGenerator:
 - name: bot-certs
   files:
-  - key.pem
-  - cert.pem
+  - dist/key.pem
+  - dist/cert.pem
 - name: bookrawl-bot-env
   envs:
   - .env.secret
 
-configMapGenerator:
-- name: bookrawl-bot
-  envs:
-  - .env
+resources:
+- deployment.yaml
