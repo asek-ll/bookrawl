@@ -77,7 +77,7 @@ func main() {
 }
 
 func listenForWebhook(tgBot *tgbot.TgBot, webHookHost string, webHookPort string, webHookPath string) (tgbotapi.UpdatesChannel, error) {
-	content, err := ioutil.ReadFile("./bot-certs/cert.pem")
+	content, err := ioutil.ReadFile("/bot-certs/cert.pem")
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func listenForWebhook(tgBot *tgbot.TgBot, webHookHost string, webHookPort string
 }
 
 func listenAndServeTLS(webHookPort string) {
-	err := http.ListenAndServeTLS(":"+webHookPort, "./bot-certs/cert.pem", "./bot-certs/key.pem", nil)
+	err := http.ListenAndServeTLS(":"+webHookPort, "/bot-certs/cert.pem", "/bot-certs/key.pem", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
