@@ -14,10 +14,10 @@ spec:
     spec:
       containers:
       - name: bookrawl-bot
-        image: ghcr.io/asek-ll/bookrawl-bot:master
+        image: sopplet/bookrawl-bot-amd64:latest
         imagePullPolicy: Always
         ports:
-          - containerPort: 443
+          - containerPort: 8443
         volumeMounts:
           - name: bot-certs
             mountPath: "/bot-certs"
@@ -38,6 +38,11 @@ spec:
               secretKeyRef:
                 name: bookrawl-bot-env
                 key: TG_BOT_WEB_HOOK_HOST
+          - name: TG_BOT_WEB_HOOK_PORT
+            valueFrom:
+              secretKeyRef:
+                name: bookrawl-bot-env
+                key: TG_BOT_WEB_HOOK_PORT
       volumes:
         - name: bot-certs
           secret:
