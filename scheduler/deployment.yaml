@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bookrawl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bookrawl-fetcher
+  template:
+    metadata:
+      labels:
+        app: bookrawl-fetcher
+    spec:
+      containers:
+      - name: bookrawl
+        image: ghcr.io/asek-ll/bookrawl:master
+        imagePullPolicy: Always
+        env:
+          - name: MONGODB_URI
+            valueFrom:
+              secretKeyRef:
+                name: bookrawl-env
+                key: MONGODB_URI
+

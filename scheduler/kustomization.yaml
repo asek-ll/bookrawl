@@ -1,0 +1,7 @@
+secretGenerator:
+  - name: bookrawl-env
+    envs:
+    - .env.secret
+
+resources:
+- deployment.yaml
