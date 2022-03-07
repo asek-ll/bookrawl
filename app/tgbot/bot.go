@@ -19,3 +19,27 @@ func CreateBot(token string) (*TgBot, error) {
 
 	return &TgBot{BotApi: bot}, nil
 }
+
+func (tgBot *TgBot) ReplyToMessage(baseMessage *tgbotapi.Message, text string) error {
+	config := tgbotapi.MessageConfig{
+		BaseChat: tgbotapi.BaseChat{
+			ChatID: baseMessage.Chat.ID,
+			ChannelUsername: baseMessage.Chat.UserName,
+			ReplyToMessageID: baseMessage.MessageID,
+			ReplyMarkup: nil,
+			DisableNotification: false,
+			AllowSendingWithoutReply: true,
+		},
+		Text: text,
+		ParseMode: "",
+		Entities: []tgbotapi.MessageEntity{},
+		DisableWebPagePreview: false,
+	}
+	_, err := tgBot.BotApi.Request(config)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

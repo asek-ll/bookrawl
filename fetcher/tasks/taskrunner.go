@@ -1,7 +1,7 @@
 package tasks
 
 import (
-	"bookrawl/app/abooks"
+	"bookrawl/app/dao/abooks"
 )
 
 type TaskRunner interface {

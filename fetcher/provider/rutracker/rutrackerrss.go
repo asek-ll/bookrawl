@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"bookrawl/app/abooks"
+	"bookrawl/app/dao/abooks"
 	"bookrawl/fetcher/tasks"
 )
 

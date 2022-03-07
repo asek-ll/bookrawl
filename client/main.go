@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bookrawl/app/abooks"
+	"bookrawl/app/dao/abooks"
 	"fmt"
 	"sort"
 

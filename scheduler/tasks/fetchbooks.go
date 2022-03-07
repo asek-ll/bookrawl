@@ -1,7 +1,7 @@
 package tasks
 
 import (
-	"bookrawl/app/abooks"
+	"bookrawl/app/dao/abooks"
 	"bookrawl/app/dao/authors"
 	"bookrawl/fetcher/provider/abookclub"
 	"bookrawl/fetcher/provider/rutracker"

@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"bookrawl/app/abooks"
+	"bookrawl/app/dao/abooks"
 	"bookrawl/app/dao/authors"
 )
 

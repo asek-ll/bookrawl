@@ -10,3 +10,9 @@ secretGenerator:
 resources:
 - deployment.yaml
 - service.yaml
+
+images:
+- name: bookrawl-bot
+  newName: sopplet/bookrawl-bot-amd64
+  newTag: latest
+  digest: sha256:5893d495047388d9d4fe98c715ca4070ce645ba6771dfd74e55a06279abd7261

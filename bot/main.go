@@ -3,14 +3,13 @@ package main
 import (
 	"bookrawl/app/tgbot"
 	"bookrawl/scheduler/utils"
-	"bookrawl/app/abooks"
+	"bookrawl/app/dao"
+	"bookrawl/bot/commands"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"fmt"
-	"strings"
 )
 
 func main() {
@@ -33,12 +32,16 @@ func main() {
 		log.Fatalf("Can't create bot api: %v", err)
 	}
 
-	err = setCommands(bot, []tgbotapi.BotCommand{
-		tgbotapi.BotCommand{
-			Command:     "/list",
-			Description: "List of last processed books",
-		},
-	})
+
+	daoHolder := dao.NewDaoHolder(mongoClient)
+
+	cmds := []commands.Command{
+		&commands.ListCommand{DaoHolder: daoHolder},
+		&commands.SearchByAuthorCommand{DaoHolder: daoHolder},
+	}
+	
+	err = setCommands(bot, cmds)
+
 	if err != nil {
 		log.Fatalf("Can't set bot commands: %v", err)
 	}
@@ -49,31 +52,37 @@ func main() {
 		log.Fatal(err)
 	}
 
-	bookStore := &abooks.AbookStore{
-		Collection: mongoClient.Database("bookrawl").Collection("abooks"),
-	}
+	processCommands(bot, cmds, updates)
+}
+
+func processCommands(tgBot *tgbot.TgBot, cmds []commands.Command, updates tgbotapi.UpdatesChannel) error {
+
+	log.Println("Process commands")
 
 	for update := range updates {
-		log.Printf("%+v\n", update)
 		msg := update.Message
-		cmd := msg.CommandWithAt()
-		if cmd == "list" {
-			result, err := bookStore.Find(nil, 20)
-			if err != nil {
-				log.Fatal(err)
+		if msg.IsCommand() {
+			cmdName := msg.CommandWithAt()
+
+			log.Println("Get cmd", cmdName)
+			ctx := &commands.Context{
+				TgBot: tgBot,
+				Message: msg,
 			}
+			for _, cmd := range cmds {
+				if cmd.GetName() == cmdName {
+					log.Println("Found processor", cmdName)
+					err := cmd.Run(ctx)
+					if err != nil {
+						log.Println(err)
+					}
+				}
 
-			lines := []string{}
-
-			for _, book := range result.Books {
-				lines = append(lines, fmt.Sprintln(book.Author, "-", book.Title, "-", book.Date, book.AuthorId, book.Link))
 			}
-
-			sendMessage(bot, msg, strings.Join(lines, "\n"))
-
 		}
 	}
 
+	return nil
 }
 
 func listenForWebhook(tgBot *tgbot.TgBot, webHookHost string, webHookPort string, webHookPath string) (tgbotapi.UpdatesChannel, error) {
@@ -108,7 +117,9 @@ func listenForWebhook(tgBot *tgbot.TgBot, webHookHost string, webHookPort string
 
 	updates := tgBot.BotApi.ListenForWebhook("/" + webHookPath)
 
+	log.Println("Start listen")
 	go listenAndServeTLS(webHookPort)
+	log.Println("Return updates")
 
 	return updates, nil
 }
@@ -120,9 +131,20 @@ func listenAndServeTLS(webHookPort string) {
 	}
 }
 
-func setCommands(tgBot *tgbot.TgBot, commands []tgbotapi.BotCommand) error {
+func setCommands(tgBot *tgbot.TgBot, commands []commands.Command) error {
+
+	botCommands := make([]tgbotapi.BotCommand, len(commands))
+
+	for i, cmd := range commands {
+		botCommands[i] = tgbotapi.BotCommand{
+			Command:     "/" + cmd.GetName(),
+			Description: cmd.GetDescription(),
+		}
+	}
+
+
 	commandsConfig := tgbotapi.SetMyCommandsConfig{
-		Commands:     commands,
+		Commands:     botCommands,
 		Scope:        nil,
 		LanguageCode: "ru",
 	}
@@ -133,30 +155,6 @@ func setCommands(tgBot *tgbot.TgBot, commands []tgbotapi.BotCommand) error {
 	}
 
 	log.Printf("Set bot commands %v", string(resp.Result))
-
-	return nil
-}
-
-func sendMessage(tgBot *tgbot.TgBot, baseMessage *tgbotapi.Message, text string) error {
-	config := tgbotapi.MessageConfig{
-		BaseChat: tgbotapi.BaseChat{
-			ChatID: baseMessage.Chat.ID,
-			ChannelUsername: baseMessage.Chat.UserName,
-			ReplyToMessageID: baseMessage.MessageID,
-			ReplyMarkup: nil,
-			DisableNotification: false,
-			AllowSendingWithoutReply: true,
-		},
-		Text: text,
-		ParseMode: "",
-		Entities: []tgbotapi.MessageEntity{},
-		DisableWebPagePreview: false,
-	}
-	_, err := tgBot.BotApi.Request(config)
-
-	if err != nil {
-		return err
-	}
 
 	return nil
 }

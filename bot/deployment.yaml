@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: bookrawl-bot
-        image: sopplet/bookrawl-bot-amd64:latest
+        image: bookrawl-bot
         imagePullPolicy: Always
         ports:
           - containerPort: 8443
