@@ -2,9 +2,10 @@ package tasks
 
 import (
 	"bookrawl/app/dao/abooks"
+	"time"
 )
 
 type TaskRunner interface {
 	GetType() string
-	Fetch(params TaskParams) ([]abooks.ABook, error)
+	Fetch(task SyncTask, start time.Time) ([]abooks.ABook, error)
 }

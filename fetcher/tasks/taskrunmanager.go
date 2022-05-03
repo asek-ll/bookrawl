@@ -36,7 +36,7 @@ func (tm *TaskRunManager) run(task SyncTask, start time.Time) ([]abooks.ABook, e
 
 	log.Printf("Process '%s' runner", task.Type)
 
-	books, err := runner.Fetch(task.Params)
+	books, err := runner.Fetch(task, start)
 	if err != nil {
 		log.Printf("Error in runner - %s", err.Error())
 		return nil, err
@@ -47,17 +47,15 @@ func (tm *TaskRunManager) run(task SyncTask, start time.Time) ([]abooks.ABook, e
 	filtered := []abooks.ABook{}
 
 	for _, book := range books {
-		if book.Date.After(task.LastRun) && !book.Date.After(start) {
-			author, err := tm.AuthorsStore.FindByName(book.Author)
-			if err != nil {
-				log.Println("Error fetch author for book", book, err)
-			} else if author == nil {
-				log.Println("No author founded for book", book)
-			} else {
-				book.AuthorId = []int{author.Id}
-			}
-			filtered = append(filtered, book)
+		author, err := tm.AuthorsStore.FindByName(book.Author)
+		if err != nil {
+			log.Println("Error fetch author for book", book.RawTitle, err)
+		} else if author == nil {
+			log.Printf("No author [%s] founded for book: %s", book.Author, book.RawTitle)
+		} else {
+			book.AuthorId = []int{author.Id}
 		}
+		filtered = append(filtered, book)
 	}
 
 	log.Printf("Filtered books count %d", len(filtered))

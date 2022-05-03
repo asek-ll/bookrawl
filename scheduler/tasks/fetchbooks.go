@@ -17,7 +17,7 @@ func CreateFetchBooksTask(client *mongo.Client) (func(), error) {
 				Collection: client.Database("bookrawl").Collection("authors"),
 			},
 			&abookclub.AbookClubScrapper{},
-			&rutracker.RutrackerRssScrapper{},
+			rutracker.NewRutrackerHtmlScrapper(),
 		),
 		TaskStore: &tasks.TaskStore{
 			Collection: client.Database("bookrawl").Collection("tasks"),

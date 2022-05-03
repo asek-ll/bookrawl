@@ -63,6 +63,23 @@ func (as *AbookStore) Upsert(book ABook) error {
 	return nil
 }
 
+func (as *AbookStore) UpsertMany(books []ABook) error {
+	models := make([]mongo.WriteModel, len(books))
+
+	for i, book := range books {
+		filter := bson.D{{Key: "id", Value: book.Id}}
+		update := bson.D{{Key: "$set", Value: book}}
+		models[i] = mongo.NewUpdateOneModel().SetFilter(filter).SetUpdate(update).SetUpsert(true)
+	}
+
+	opts := options.BulkWrite().SetOrdered(false)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := as.Collection.BulkWrite(ctx, models, opts)
+	return err
+}
+
 func (as *AbookStore) Find(filter *FindBooksFilter, pageSize int) (*AbooksPage, error) {
 	opts := options.Find().SetSort(bson.D{{Key: "date", Value: -1}}).SetLimit(int64(pageSize + 1))
 	queryFilter := bson.D{}

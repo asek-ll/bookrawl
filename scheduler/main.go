@@ -32,11 +32,5 @@ func main() {
 	}
 	log.Printf("Register 'fetchBooksTask' task")
 
-	// err = tasks.FillAuthors(client)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
 	s.StartBlocking()
-
 }

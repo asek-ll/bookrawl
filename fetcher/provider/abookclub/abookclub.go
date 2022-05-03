@@ -3,6 +3,7 @@ package abookclub
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,19 +33,37 @@ func (s *AbookClubScrapper) GetPageBooks(page int) ([]abooks.ABook, error) {
 	return parseBody(response.Body)
 }
 
-func (s *AbookClubScrapper) Fetch(params tasks.TaskParams) ([]abooks.ABook, error) {
-	firstPage, err := s.GetPageBooks(1)
-	if err != nil {
-		return nil, err
+func (s *AbookClubScrapper) Fetch(task tasks.SyncTask, start time.Time) ([]abooks.ABook, error) {
+
+	log.Printf("Search for abook-club books from %v to %v\n", task.LastRun, start)
+
+	books := []abooks.ABook{}
+	pageNo := 1
+
+pageLoop:
+	for true {
+		pageBooks, err := s.GetPageBooks(pageNo)
+		if err != nil {
+			return nil, err
+		}
+		log.Printf("On page %d loaded %d books\n", pageNo, len(pageBooks))
+
+		if len(pageBooks) == 0 {
+			break
+		}
+
+		for _, book := range pageBooks {
+			if book.Date.Before(task.LastRun) {
+				break pageLoop
+			}
+			if book.Date.Before(start) {
+				books = append(books, book)
+			}
+		}
+		pageNo += 1
 	}
 
-	secondPage, err2 := s.GetPageBooks(2)
-
-	if err2 != nil {
-		return firstPage, nil
-	}
-
-	return append(firstPage, secondPage...), nil
+	return books, nil
 }
 
 func (s *AbookClubScrapper) GetType() string {

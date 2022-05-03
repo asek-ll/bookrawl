@@ -13,8 +13,8 @@ spec:
         app: bookrawl-fetcher
     spec:
       containers:
-      - name: bookrawl
-        image: ghcr.io/asek-ll/bookrawl:master
+      - name: bookrawl-fetcher
+        image: bookrawl-fetcher
         imagePullPolicy: Always
         env:
           - name: MONGODB_URI

@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"bookrawl/app/dao/abooks"
+	"log"
 )
 
 type TaskManager struct {
@@ -16,6 +17,8 @@ func (tm *TaskManager) Process() error {
 	if err != nil {
 		return err
 	}
+
+	log.Printf("Founded %d tasks\n", len(tasks))
 
 	for _, task := range tasks {
 		err := tm.ProcessTask(&task)

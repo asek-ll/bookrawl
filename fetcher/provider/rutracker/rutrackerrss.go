@@ -39,15 +39,18 @@ func (s *RutrackerRssScrapper) GetType() string {
 	return "rutracker"
 }
 
-func (s *RutrackerRssScrapper) Fetch(params tasks.TaskParams) ([]abooks.ABook, error) {
+func (s *RutrackerRssScrapper) Fetch(task tasks.SyncTask, start time.Time) ([]abooks.ABook, error) {
 	var forumId string
 	exists := false
-	if params != nil {
-		forumId, exists = params["forumId"]
+
+	if task.Params != nil {
+		forumId, exists = task.Params["forumId"]
 	}
+
 	if !exists {
 		return nil, fmt.Errorf("No forum id present")
 	}
+
 	url := fmt.Sprintf("http://feed.rutracker.cc/atom/f/%s.atom", forumId)
 	response, err := http.Get(url)
 	if err != nil {

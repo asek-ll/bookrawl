@@ -5,3 +5,9 @@ secretGenerator:
 
 resources:
 - deployment.yaml
+
+images:
+- name: bookrawl-fetcher
+  newName: sopplet/bookrawl-fetcher-amd64
+  newTag: latest
+  digest: sha256:dbf6a79d381978a4344464d8f325ad8862c0301413a703702151d0c83d1474e7

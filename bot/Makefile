@@ -6,7 +6,7 @@ build-arm: dist
 build-amd: dist
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o dist/bookrawl-bot-amd64
 
-.PHONY: build-amd
+.PHONY: build-amd-docker
 build-amd-docker: build-amd
 	docker build -f docker/Dockerfile-amd64 -t sopplet/bookrawl-bot-amd64 .
 
