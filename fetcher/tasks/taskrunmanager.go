@@ -4,6 +4,7 @@ import (
 	//"fmt"
 	"errors"
 	"log"
+	"strings"
 	"time"
 
 	"bookrawl/app/dao/abooks"
@@ -51,9 +52,30 @@ func (tm *TaskRunManager) run(task SyncTask, start time.Time) ([]abooks.ABook, e
 		if err != nil {
 			log.Println("Error fetch author for book", book.RawTitle, err)
 		} else if author == nil {
-			log.Printf("No author [%s] founded for book: %s", book.Author, book.RawTitle)
+			if strings.Index(book.Author, ",") > 0 {
+				authors := strings.Split(book.Author, ",")
+				resultAuthors := []int{}
+				for _, a := range authors {
+					single := strings.Trim(a, " ")
+					author, err := tm.AuthorsStore.FindByName(single)
+					if err == nil && author != nil {
+						log.Println(author, book.Id)
+						resultAuthors = append(resultAuthors, author.Id)
+					}
+				}
+				if len(resultAuthors) > 0 {
+					book.AuthorId = resultAuthors
+				} else {
+					log.Printf("No authors %v founded for book: %s", authors, book.RawTitle)
+				}
+			} else {
+				log.Printf("No author [%s] founded for book: %s", book.Author, book.RawTitle)
+			}
 		} else {
 			book.AuthorId = []int{author.Id}
+		}
+		if book.AuthorId != nil {
+			log.Printf("Authors founded %v founded for book: %s", book.AuthorId, book.RawTitle)
 		}
 		filtered = append(filtered, book)
 	}

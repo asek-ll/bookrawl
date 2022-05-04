@@ -137,7 +137,7 @@ func run(daoHolder *dao.DaoHolder) error {
 			lastDate = &book.Date
 		}
 		cnt += len(page.Books)
-		log.Println("Process books", cnt)
+		log.Println("Process books", cnt, lastDate)
 		if lastDate == nil {
 			break
 		}

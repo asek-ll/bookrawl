@@ -107,8 +107,8 @@ func (s *RutrackerHtmlScrapper) fetchBookFromTopic(ti TopicCreateInfo) (*abooks.
 
 	titleParts := SplitAuthorTitleAndOther(title)
 	if len(titleParts) >= 2 {
-		title = titleParts[0]
-		author = titleParts[1]
+		author = titleParts[0]
+		title = titleParts[1]
 	}
 
 	msg := topic.Find(".message").First()
