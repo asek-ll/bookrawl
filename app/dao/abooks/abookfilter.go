@@ -1,4 +1,4 @@
-package abooks 
+package abooks
 
 import (
 	"time"
@@ -7,7 +7,8 @@ import (
 type FindBooksFilter struct {
 	AfterDate  *time.Time
 	BeforeDate *time.Time
-	AuthorId *int
+	AuthorId   *int
+	NoAuthor   *bool
 }
 
 type BooksFilterBuilder struct {
@@ -17,9 +18,10 @@ type BooksFilterBuilder struct {
 func NewBooksFilterBuilder() *BooksFilterBuilder {
 	return &BooksFilterBuilder{
 		filter: &FindBooksFilter{
-			AfterDate: nil,
+			AfterDate:  nil,
 			BeforeDate: nil,
-			AuthorId: nil,
+			AuthorId:   nil,
+			NoAuthor:   nil,
 		},
 	}
 }
@@ -36,6 +38,13 @@ func (fb *BooksFilterBuilder) SetBeforeDate(t *time.Time) *BooksFilterBuilder {
 
 func (fb *BooksFilterBuilder) SetAuthorId(authorId *int) *BooksFilterBuilder {
 	fb.filter.AuthorId = authorId
+	return fb
+}
+
+func (fb *BooksFilterBuilder) NoAuthor() *BooksFilterBuilder {
+	fb.filter.AuthorId = nil
+	t := true
+	fb.filter.NoAuthor = &t
 	return fb
 }
 

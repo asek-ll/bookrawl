@@ -101,25 +101,14 @@ func (s *RutrackerHtmlScrapper) fetchBookFromTopic(ti TopicCreateInfo) (*abooks.
 
 	rawTitle := topic.Find("#topic-title").Text()
 
-	var title, author string
+	var author string
 
-	if titleRegexp.MatchString(rawTitle) {
-		for _, submatches := range titleRegexp.FindAllSubmatch([]byte(rawTitle), -1) {
-			author = strings.Trim(string(submatches[1]), " ")
-			title = string(submatches[2])
-		}
-	} else {
+	title := rawTitle
 
-		sepIndex := strings.Index(rawTitle, "-")
-		anotherSepIndex := strings.Index(rawTitle, "–")
-		if anotherSepIndex >= 0 && (anotherSepIndex < sepIndex || sepIndex < 0) {
-			sepIndex = anotherSepIndex
-		}
-
-		if sepIndex >= 0 {
-			author = strings.Trim(rawTitle[0:sepIndex], " ")
-			title = strings.Trim(rawTitle[sepIndex:], " –-")
-		}
+	titleParts := SplitAuthorTitleAndOther(title)
+	if len(titleParts) >= 2 {
+		title = titleParts[0]
+		author = titleParts[1]
 	}
 
 	msg := topic.Find(".message").First()
@@ -174,4 +163,45 @@ func (s *RutrackerHtmlScrapper) fetchBookFromTopic(ti TopicCreateInfo) (*abooks.
 	}
 
 	return book, nil
+}
+
+func splitAuthorAndOther(title string) []string {
+
+	seps := [][]string{
+		{" - ", " – "},
+		{"- ", "– "},
+		{" -", " –"},
+		{"-", "–"},
+	}
+
+	for _, ss := range seps {
+		sepIndex := strings.Index(title, ss[0])
+		anotherSepIndex := strings.Index(title, ss[1])
+		if anotherSepIndex >= 0 && (anotherSepIndex < sepIndex || sepIndex < 0) {
+			sepIndex = anotherSepIndex
+		}
+
+		if sepIndex >= 0 {
+			author := strings.Trim(title[0:sepIndex], " ")
+			title := strings.Trim(title[sepIndex:], " –-")
+			return []string{author, title}
+		}
+	}
+
+	return []string{title}
+}
+
+func SplitAuthorTitleAndOther(title string) []string {
+	ps := splitAuthorAndOther(title)
+	last := ps[len(ps)-1]
+
+	propsStart := strings.Index(last, "[")
+
+	if propsStart > 0 {
+		title := strings.Trim(last[0:propsStart], " ")
+		props := strings.Trim(last[propsStart+1:], " ")
+		return append(ps[0:len(ps)-1], []string{title, props}...)
+	}
+
+	return ps
 }

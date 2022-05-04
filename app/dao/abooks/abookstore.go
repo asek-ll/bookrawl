@@ -10,7 +10,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-
 type AbooksPage struct {
 	Books    []ABook
 	HasNext  bool
@@ -80,6 +79,21 @@ func (as *AbookStore) UpsertMany(books []ABook) error {
 	return err
 }
 
+func (as *AbookStore) GetById(id string) (*ABook, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	var model ABook
+	err := as.Collection.FindOne(ctx, bson.M{"id": id}).Decode(&model)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &model, nil
+
+}
+
 func (as *AbookStore) Find(filter *FindBooksFilter, pageSize int) (*AbooksPage, error) {
 	opts := options.Find().SetSort(bson.D{{Key: "date", Value: -1}}).SetLimit(int64(pageSize + 1))
 	queryFilter := bson.D{}
@@ -106,8 +120,13 @@ func (as *AbookStore) Find(filter *FindBooksFilter, pageSize int) (*AbooksPage, 
 		}
 		if filter.AuthorId != nil {
 			queryFilter = append(queryFilter, bson.E{
-				Key: "authorid",
+				Key:   "authorid",
 				Value: *filter.AuthorId,
+			})
+		} else if filter.NoAuthor != nil && *filter.NoAuthor == true {
+			queryFilter = append(queryFilter, bson.E{
+				Key:   "authorid",
+				Value: nil,
 			})
 		}
 	}
