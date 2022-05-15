@@ -32,5 +32,7 @@ func main() {
 	}
 	log.Printf("Register 'fetchBooksTask' task")
 
+	fetchBooksTask()
+
 	s.StartBlocking()
 }
