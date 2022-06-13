@@ -20,7 +20,7 @@ type RutrackerHtmlScrapper struct {
 func NewRutrackerHtmlScrapper() *RutrackerHtmlScrapper {
 	return &RutrackerHtmlScrapper{
 		htmlClient: HtmlClientImpl{},
-		apiClient:  &RutrackerApiClient{},
+		apiClient:  NewRutrackerApiClient("https://api.t-ru.org"),
 	}
 }
 
