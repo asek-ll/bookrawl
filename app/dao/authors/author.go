@@ -36,8 +36,8 @@ func (store *Store) UpsertMany(authors []*Author) error {
 	for i, author := range authors {
 		filter := bson.D{{Key: "_id", Value: author.Id}}
 		update := bson.D{{Key: "$set", Value: bson.D{
-			{"_id", author.Id},
-			{"name", author.Name},
+			{Key: "_id", Value: author.Id},
+			{Key: "name", Value: author.Name},
 		}}}
 		models[i] = mongo.NewUpdateOneModel().SetFilter(filter).SetUpdate(update).SetUpsert(true)
 	}
@@ -70,8 +70,8 @@ func isNameMatchedStrict(name string, author *Author) bool {
 }
 
 func (store *Store) FindByName(name string) (*Author, error) {
-	filter := bson.D{{"$text", bson.D{{"$search", name}}}}
-	sort := bson.D{{"score", bson.D{{"$meta", "textScore"}}}}
+	filter := bson.D{{Key: "$text", Value: bson.D{{Key: "$search", Value: name}}}}
+	sort := bson.D{{Key: "score", Value: bson.D{{Key: "$meta", Value: "textScore"}}}}
 
 	opts := options.Find().SetSort(sort).SetLimit(1)
 

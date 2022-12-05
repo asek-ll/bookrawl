@@ -1,10 +1,16 @@
 package main
 
 import (
+	"bookrawl/app/dao"
 	"bookrawl/app/dao/abooks"
+	"bookrawl/app/dao/books"
+	"bookrawl/app/fantlab"
 	"bookrawl/scheduler/utils"
+	"errors"
 	"fmt"
+	"os"
 	"sort"
+	"strconv"
 
 	"log"
 )
@@ -15,12 +21,69 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	bookStore := &abooks.AbookStore{
-		Collection: client.Database("bookrawl").Collection("abooks"),
+
+	daoHolder := dao.NewDaoHolder(client)
+	command := os.Args[1]
+
+	if command == "start" {
+		workId, err := strconv.Atoi(os.Args[2])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = startBook(workId, os.Args[3], daoHolder)
+	}
+
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	//printByAuthor(bookStore)
-	printLast(bookStore)
+	// printLast(bookStore)
+}
+
+func startBook(fantLabId int, abookId string, daoHolder *dao.DaoHolder) error {
+	fantlabClient := fantlab.NewApiClient()
+	work, err := fantlabClient.GetWork(fantLabId)
+	if err != nil {
+		return err
+	}
+
+	if work == nil {
+		return errors.New("FantLab book not found with id")
+	}
+
+	bookStore := daoHolder.GetBookStore()
+	book, err := bookStore.FindByFantLabId(fantLabId)
+
+	if err != nil {
+		return err
+	}
+
+
+
+	if book == nil {
+		authorsIds := make([]int, len(work.Authors))
+		for i, author := range work.Authors {
+			authorsIds[i] = author.Id
+		}
+		book = &books.Book{
+			Name:      work.Title,
+			Authors:   authorsIds,
+			FantLabId: &fantLabId,
+		}
+		err = bookStore.Create(book)
+		if err != nil {
+			return err
+		}
+	}
+
+	
+	stateStore := daoHolder.GetUserBookStateStore()
+
+	stateStore.FindByBookIdAndUserId(book.Id, 
+
+
 }
 
 func printByAuthor(bookStore *abooks.AbookStore) {
